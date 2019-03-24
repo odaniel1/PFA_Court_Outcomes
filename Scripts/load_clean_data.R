@@ -1,11 +1,10 @@
+library(data.table)
 library(tidyverse)
-data <- read_csv("./Data/Court outcomes by PFA 2017.csv")
+
+data <- fread("./Data/Court outcomes by PFA 2017.csv")
 region_map <- read_csv("./Data/PFA_Region_Mapping.csv")
 
-data <- left_join(data, region_map) %>% 
-  mutate(
-    Country = ifelse(Region == "Wales/Cymru", "Wales", "England")
-  )
+data <- left_join(data, region_map)
 
 data <- data %>%
   select(
@@ -30,3 +29,5 @@ data <- data %>%
     custodial_sentence_length = `Custodial Sentence Length`,
     count = Count
   )
+
+rm(region_map)
