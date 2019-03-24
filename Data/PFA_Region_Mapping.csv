@@ -1,45 +1,45 @@
-Police Force Area,Region
-Avon and Somerset,South West
-Bedfordshire,Thames & Chiltern
-Cambridgeshire,Eastern
-Cheshire,Merseyside & Cheshire
-City of London,London
-Cleveland,North East
-Cumbria,"Greater Manchester, Lancashire & Cumbria"
-Derbyshire,East Midlands
-Devon and Cornwall,South West
-Dorset,Wessex
-Durham,North East
-Dyfed-Powys,Wales/Cymru
-Essex,Eastern
-Gloucestershire,South West
-Greater Manchester,"Greater Manchester, Lancashire & Cumbria"
-Gwent,Wales/Cymru
-Hampshire,Wessex
-Hertfordshire,Thames & Chiltern
-Humberside,Yorkshire & Humberside
-Kent,South East
-Lancashire,"Greater Manchester, Lancashire & Cumbria"
-Leicestershire,East Midlands
-Lincolnshire,East Midlands
-Merseyside,Merseyside & Cheshire
-Metropolitan Police,London
-Norfolk,Eastern
-North Wales,Wales/Cymru
-North Yorkshire,Yorkshire & Humberside
-Northamptonshire,East Midlands
-Northumbria,North East
-Nottinghamshire,East Midlands
-South Wales,Wales/Cymru
-South Yorkshire,Yorkshire & Humberside
-Staffordshire,West Midlands
-Suffolk,Eastern
-Surrey,South East
-Sussex,South East
-Thames Valley,Thames & Chiltern
-Warwickshire,West Midlands
-West Mercia,West Midlands
-West Midlands,West Midlands
-West Yorkshire,Yorkshire & Humberside
-Wiltshire,Wessex
-special/miscellaneous and unknown police forces,Specialist
+Police Force Area,Region,Country
+Avon and Somerset,South West,England
+Bedfordshire,Thames & Chiltern,England
+Cambridgeshire,Eastern,England
+Cheshire,Merseyside & Cheshire,England
+City of London,London,England
+Cleveland,North East,England
+Cumbria,"Greater Manchester, Lancashire & Cumbria",England
+Derbyshire,East Midlands,England
+Devon and Cornwall,South West,England
+Dorset,Wessex,England
+Durham,North East,England
+Dyfed-Powys,Wales/Cymru,Wales
+Essex,Eastern,England
+Gloucestershire,South West,England
+Greater Manchester,"Greater Manchester, Lancashire & Cumbria",England
+Gwent,Wales/Cymru,Wales
+Hampshire,Wessex,England
+Hertfordshire,Thames & Chiltern,England
+Humberside,Yorkshire & Humberside,England
+Kent,South East,England
+Lancashire,"Greater Manchester, Lancashire & Cumbria",England
+Leicestershire,East Midlands,England
+Lincolnshire,East Midlands,England
+Merseyside,Merseyside & Cheshire,England
+Metropolitan Police,London,England
+Norfolk,Eastern,England
+North Wales,Wales/Cymru,Wales
+North Yorkshire,Yorkshire & Humberside,England
+Northamptonshire,East Midlands,England
+Northumbria,North East,England
+Nottinghamshire,East Midlands,England
+South Wales,Wales/Cymru,Wales
+South Yorkshire,Yorkshire & Humberside,England
+Staffordshire,West Midlands,England
+Suffolk,Eastern,England
+Surrey,South East,England
+Sussex,South East,England
+Thames Valley,Thames & Chiltern,England
+Warwickshire,West Midlands,England
+West Mercia,West Midlands,England
+West Midlands,West Midlands,England
+West Yorkshire,Yorkshire & Humberside,England
+Wiltshire,Wessex,England
+special/miscellaneous and unknown police forces,Specialist,England
