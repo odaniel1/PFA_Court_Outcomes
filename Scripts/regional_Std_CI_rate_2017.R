@@ -1,9 +1,12 @@
-# Immediate Custody Rates by Region for 2017.
+# Standardised Immediate Custody Rates by Region for 2017.
 #
 # ===========================================
 #
-# In this script we produce Immediate Custody (IC) rates, and associated 
+# In this script we produce Standardised Immediate Custody (IC) rates, and associated 
 # credible intervals for sentenced defendants.
+#
+# Our standardisation process is done at a regional level, and we use Wales as the 
+# reference region for standardisation.
 #
 # We restrict attention to:
 #    - A region level analysis (following a note in the publication that data
@@ -48,22 +51,30 @@ region_data <- data %>%
   ) %>%
   ungroup()
 
-# Create summary data frame by region and court type.
-region_summary <- region_data %>%
-  group_by(region, country, court) %>%
-  summarise(
-    count = sum(count),
-    outcome_IC = sum(outcome_IC),
-    IC_rate = outcome_IC / count
-  ) %>%
-  ungroup()
+# Get count data by stratum for Wales only.
+wales_count_data <- region_data %>% filter(region == "Wales/Cymru") %>%
+  select(-region, -country, -outcome_IC, - outcome_not_IC) %>% rename(wales_count = count)
+
+# Join this data to the original region data, so that each region/stratum now has the corresponding
+# count value observed in Wales.
+region_data_std <- full_join(region_data, wales_count_data) %>%
+  
+  # Remove any rows where the count data in Wales is NA (corresponding to no observations in Wales)
+  filter(is.na(wales_count) == FALSE) %>%
+  
+  # Replace NA values with zero where a region/stratum has no match in the original data.
+  mutate(
+    outcome_IC = ifelse( is.na(outcome_IC), 0, outcome_IC),
+    outcome_not_IC = ifelse( is.na(outcome_not_IC), 0, outcome_not_IC),
+    count = ifelse( is.na(count), 0, count),
+  )
 
 # 
 # => Below we generate confidence intervals for the regional summaries.
 #
 
 # Calculate Bayesian posterior parameters in line with the Jeffreys prior. 
-region_data <- region_data %>%
+region_data_std <- region_data_std %>%
   mutate(
     alpha = outcome_IC + 1/2,
     beta  = outcome_not_IC + 1/2
@@ -73,14 +84,14 @@ region_data <- region_data %>%
 set.seed(17880205)
 
 # Generate samples from each posterior distribution; we use 1000 samples per stratum.
-samples <- region_data %>% crossing(data_frame(sample_id = 1:1000)) %>%
+std_samples <- region_data_std %>% crossing(data_frame(sample_id = 1:1000)) %>%
   mutate(
     theta = rbeta(n = n(), shape1 = alpha, shape2 = beta),
-    outcome_IC = rbinom(n = n(), size = count, prob = theta)
+    outcome_IC = rbinom(n = n(), size = wales_count, prob = theta)
   )
 
 # Aggregate to region and court level
-region_samples <- samples %>%
+region_std_samples <- std_samples %>%
   group_by(region, court, sample_id) %>%
   summarise(
     outcome_IC = sum(outcome_IC),
@@ -90,7 +101,7 @@ region_samples <- samples %>%
   ungroup()
 
 # Obtain credible intervals for total CI rate for each region.
-region_CredInt <- region_samples %>%
+region_std_CredInt <- region_std_samples %>%
   group_by(region, court) %>%
   summarise(
     low95 = quantile(IC_rate, 0.025),
@@ -98,53 +109,46 @@ region_CredInt <- region_samples %>%
     hgh95 = quantile(IC_rate, 0.975)
   ) %>% ungroup()
 
-# Join credible intervals with the summary data frame.
-region_summary <- left_join(region_summary, region_CredInt)
 
 #
 # => Below we generate plots of the confidence regions.
 #
 
 # Crown court plot.
-crown_CI_plot <- region_summary %>%
+crown_std_CI_plot <- region_std_CredInt %>%
   filter(court == "01: Crown Court",
          region != "Specialist") %>%
   mutate(
-    region = fct_reorder(region, desc(IC_rate))
+    region = fct_reorder(region, desc(mid50)),
+    country = ifelse(region == "Wales/Cymru", "Wales", "England")
   ) %>%
-  ggplot(aes(IC_rate, region, color = country)) + geom_point() + 
-  geom_point(aes(mid50, region), shape = 3) +
+  ggplot(aes(mid50, region, color = country)) + geom_point(shape = 3) + 
   geom_errorbarh(aes(xmin = low95, xmax = hgh95)) +
   scale_color_manual(values = c("Wales" = "#F2300F", "England" = "#35274A")) +
   scale_x_continuous(labels = scales::percent) +
-  ggtitle("Crown Court Immediate Custody Rates and 95% Credible Intervals") +
-  xlab("Immediate Custody Rate") + ylab("Region") + theme(legend.position="bottom")
+  ggtitle("Crown Court Standardised Immediate Custody Rates and 95% Credible Intervals") +
+  xlab("(Standardised) Immediate Custody Rate") + ylab("Region") + theme(legend.position="bottom")
 
-ggsave("./Outputs/Plots/crown_CI_2017.png", crown_CI_plot, width=25, height=25, units="cm")
+ggsave("./Outputs/Plots/crown_std_CI_2017.png", crown_std_CI_plot, width=25, height=25, units="cm")
 
 # Magistrates court plot.
-mags_CI_plot <- region_summary %>%
+mags_std_CI_plot <- region_std_CredInt %>%
   filter(court == "02: Magistrates Court",
          region != "Specialist") %>%
   mutate(
-    region = fct_reorder(region, desc(IC_rate))
+    region = fct_reorder(region, desc(mid50)),
+    country = ifelse(region == "Wales/Cymru", "Wales", "England")
   ) %>%
-  ggplot(aes(IC_rate, region, color = country)) + geom_point() + 
-  geom_point(aes(mid50, region), shape = 3) +
+  ggplot(aes(mid50, region, color = country)) + geom_point(shape = 3) + 
   geom_errorbarh(aes(xmin = low95, xmax = hgh95)) +
   scale_color_manual(values = c("Wales" = "#F2300F", "England" = "#35274A")) +
   scale_x_continuous(labels = scales::percent) +
-  ggtitle("Magistrates Court Immediate Custody Rates and 95% Credible Intervals") +
-  xlab("Immediate Custody Rate") + ylab("Region") + theme(legend.position="bottom")
+  ggtitle("Magistrates Court Standardised Immediate Custody Rates and 95% Credible Intervals") +
+  xlab("(Standardised) Immediate Custody Rate") + ylab("Region") + theme(legend.position="bottom")
 
-ggsave("./Outputs/Plots/mags_CI_2017.png", mags_CI_plot, width=25, height=25, units="cm")
-
-# Note: Both plots show a consistent mis-estimates of the center of the credible region,
-# in relation to the observed IC rate: in the case of the Crown data estimates are consistently
-# below observed, whilst in the magistrates court this is reversed.
-#
-# This could be improved by using more informative priors than the Jeffreys prior.
+ggsave("./Outputs/Plots/mags_std_CI_2017.png", mags_std_CI_plot, width=25, height=25, units="cm")
 
 # Clean up.
 rm(list = ls())
 gc()
+
