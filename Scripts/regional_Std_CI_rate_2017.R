@@ -55,14 +55,16 @@ region_data <- data %>%
 wales_count_data <- region_data %>% filter(region == "Wales/Cymru") %>%
   select(-region, -country, -outcome_IC, - outcome_not_IC) %>% rename(wales_count = count)
 
-# Join this data to the original region data, so that each region/stratum now has the corresponding
-# count value observed in Wales.
-region_data_std <- full_join(region_data, wales_count_data) %>%
+# Cross the Wales count data with the region_data, so that each entry of wales_count_data is 
+# duplicated once for each region.
+region_data_std <- wales_count_data %>%
+  crossing(data_frame(region = unique(data$region))) %>%
   
-  # Remove any rows where the count data in Wales is NA (corresponding to no observations in Wales)
-  filter(is.na(wales_count) == FALSE) %>%
-  
-  # Replace NA values with zero where a region/stratum has no match in the original data.
+  # Join this with the original region_data.
+  left_join(region_data) %>%
+
+  # Add zeros to any entries for outcome_IC, outcome_not_IC, and count where the original region
+  # did not have any matching data.
   mutate(
     outcome_IC = ifelse( is.na(outcome_IC), 0, outcome_IC),
     outcome_not_IC = ifelse( is.na(outcome_not_IC), 0, outcome_not_IC),
@@ -87,15 +89,15 @@ set.seed(17880205)
 std_samples <- region_data_std %>% crossing(data_frame(sample_id = 1:1000)) %>%
   mutate(
     theta = rbeta(n = n(), shape1 = alpha, shape2 = beta),
-    outcome_IC = rbinom(n = n(), size = wales_count, prob = theta)
+    wales_outcome_IC = rbinom(n = n(), size = wales_count, prob = theta)
   )
 
 # Aggregate to region and court level
 region_std_samples <- std_samples %>%
   group_by(region, court, sample_id) %>%
   summarise(
-    outcome_IC = sum(outcome_IC),
-    count = sum(count),
+    outcome_IC = sum(wales_outcome_IC),
+    count = sum(wales_count),
     IC_rate = outcome_IC / count
   ) %>%
   ungroup()
@@ -108,7 +110,6 @@ region_std_CredInt <- region_std_samples %>%
     mid50 = quantile(IC_rate, 0.5),
     hgh95 = quantile(IC_rate, 0.975)
   ) %>% ungroup()
-
 
 #
 # => Below we generate plots of the confidence regions.
