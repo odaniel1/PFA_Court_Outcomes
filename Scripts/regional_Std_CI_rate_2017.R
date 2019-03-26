@@ -68,7 +68,7 @@ region_data_std <- wales_count_data %>%
   mutate(
     outcome_IC = ifelse( is.na(outcome_IC), 0, outcome_IC),
     outcome_not_IC = ifelse( is.na(outcome_not_IC), 0, outcome_not_IC),
-    count = ifelse( is.na(count), 0, count),
+    count = ifelse( is.na(count), 0, count)
   )
 
 # 
