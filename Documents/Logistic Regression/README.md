@@ -97,7 +97,7 @@ The data we use is illustrated below, where we display the first 8 rows.
 
 The `count` column denotes the total number of defendants in the data, whilst `count_IC` denotes those sentenced to immediate custody. Finally `rate_IC` denotes the immediate custody rate, which is the ratio of `count_IC` to \`count.
 
-**Note: I have chosen not to host the MOJ's raw data on github as it is readily available from the link above; the simplified data for this example is, however, hosted here. Moreover, the code to generate this from the MOJ raw data is available here.**
+**Note: I have chosen not to host the MOJ's raw data on github as it is readily available from the link above; the simplified data for this example is, however, hosted [here](https://github.com/odaniel1/PFA_Court_Outcomes/blob/master/Data/adult_gender_IC_data.csv). Moreover, the code to generate this from the MOJ raw data is available [here](https://github.com/odaniel1/PFA_Court_Outcomes/blob/master/Scripts/generate_simple_adult_gender_data.R).**
 
 As a first piece of exploratory analysis, the histograms below show how immediate custody rates vary, and in particular highlights that gender does appear to have an impact on this.
 
@@ -168,17 +168,11 @@ The first assumption is not so much about the appropriateness of the modelling t
 
 Without looking at the data I would not (personally!) choose to make this assumption without first actively testing it. For instance, do we know that within these offence groups woman and men are commiting the same actual crimes (eg. if a woman does commit a sex offence, beyond the headline title, are these really likely to be similar offences, with similar punishments?).
 
-``` r
-example_IC_rate <- data %>% 
-  filter(sex == "01: Male", offence_type == "01: Indictable only", offence_group == "01: Violence against the person") %>%
-  select(rate_IC) %>% unlist
-
-example_odds <- example_IC_rate / (1 - example_IC_rate)
-```
-
 We can test this rather easily by returning to the original raw data (eg. without the hindsight of our first logistic regression model). For each offence type/group we can calculate the (implied) odds for both males and female based on the count data. For instance, for Male indictable only violence against the person defendants the observed immediate custody rate was 0.887, with implied odds 7.827.
 
-The plot below demonstrates that whilst the male and female odds are correlated across offence groups, assuming that the female odds are a constant times the male ones does not provide a very good fit (the dashed line depicts the implicit relationship assumed in our first logistic regression model, where female defendants were modelled to have odds equal to men, discounted by 0.345). ![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+The plot below demonstrates that whilst the male and female odds are correlated across offence groups, assuming that the female odds are a constant times the male ones does not provide a very good fit (the dashed line depicts the implicit relationship assumed in our first logistic regression model, where female defendants were modelled to have odds equal to men, discounted by 0.345).
+
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 A Second Attempt
 ================
@@ -203,20 +197,21 @@ Doing this, we obtain model fits for both a male and female logistic regression 
 | offence\_group09: Miscellaneous crimes against society |  -0.5240392|
 | offence\_group10: Fraud Offences                       |  -0.4618284|
 
-| term                                                    |                                                                                                                                                           estimate|
-|:--------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| (Intercept)                                             |                                                                                                                                                          0.4757287|
-| offence\_type02: Triable Either Way                     |                                                                                                                                                         -1.0063585|
-| offence\_group02: Sexual offences                       |                                                                                                                                                          0.9424191|
-| offence\_group03: Robbery                               |                                                                                                                                                          1.3036083|
-| offence\_group04: Theft Offences                        |                                                                                                                                                          0.6933624|
-| offence\_group05: Criminal damage and arson             |                                                                                                                                                         -0.1492410|
-| offence\_group06: Drug offences                         |                                                                                                                                                         -0.0728072|
-| offence\_group07: Possession of weapons                 |                                                                                                                                                         -0.4445153|
-| offence\_group08: Public order offences                 |                                                                                                                                                         -0.7532894|
-| offence\_group09: Miscellaneous crimes against society  |                                                                                                                                                         -0.5594414|
-| offence\_group10: Fraud Offences                        |                                                                                                                                                         -0.3910949|
-| As before we will not perform a full diagnostic test of |  model fit, but rather just see how well this new model fits to the original data from which it was derived. And most importantly whether it fits the data better.|
+| term                                                   |    estimate|
+|:-------------------------------------------------------|-----------:|
+| (Intercept)                                            |   0.4757287|
+| offence\_type02: Triable Either Way                    |  -1.0063585|
+| offence\_group02: Sexual offences                      |   0.9424191|
+| offence\_group03: Robbery                              |   1.3036083|
+| offence\_group04: Theft Offences                       |   0.6933624|
+| offence\_group05: Criminal damage and arson            |  -0.1492410|
+| offence\_group06: Drug offences                        |  -0.0728072|
+| offence\_group07: Possession of weapons                |  -0.4445153|
+| offence\_group08: Public order offences                |  -0.7532894|
+| offence\_group09: Miscellaneous crimes against society |  -0.5594414|
+| offence\_group10: Fraud Offences                       |  -0.3910949|
+
+As before we will not perform a full diagnostic test of model fit, but rather just see how well this new model fits to the original data from which it was derived. And most importantly whether it fits the data better.
 
 The plot below shows the observed immediate custody rates against the probabilities prediced from the new model (solid circles) as well as the original result (hollow circles).
 

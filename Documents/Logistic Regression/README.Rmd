@@ -93,14 +93,15 @@ data %>% head(8) %>%  kable
 
 The `count` column denotes the total number of defendants in the data, whilst `count_IC` denotes those sentenced to immediate custody. Finally `rate_IC` denotes the immediate custody rate, which is the ratio of `count_IC` to `count.
 
-**Note: I have chosen not to host the MOJ's raw data on github as it is readily available from the link above; the simplified data for this example is, however, hosted here. Moreover, the code to generate this from the MOJ raw data is available here.**
+**Note: I have chosen not to host the MOJ's raw data on github as it is readily available from the link above; the simplified data for this example is, however, hosted [here](https://github.com/odaniel1/PFA_Court_Outcomes/blob/master/Data/adult_gender_IC_data.csv). Moreover, the code to generate this from the MOJ raw data is available [here](https://github.com/odaniel1/PFA_Court_Outcomes/blob/master/Scripts/generate_simple_adult_gender_data.R).**
 
 As a first piece of exploratory analysis, the histograms below show how immediate custody rates vary, and in particular highlights that gender does appear to have an impact on this.
 
 ```{r, echo = FALSE, warning = FALSE}
 data %>% 
   mutate(rate_IC = count_IC / count) %>%
-  ggplot(aes(x = rate_IC)) + geom_histogram(bins= 10) + facet_grid(rows = vars(sex))
+  ggplot(aes(x = rate_IC, fill = sex)) + geom_histogram(bins= 10) + facet_grid(rows = vars(sex)) +
+    scale_fill_manual(values = c("01: Male" = "#3B9AB2", "02: Female" = "#F21A00"))
 ```
 
 ## Fitting a first model
@@ -205,6 +206,7 @@ example_odds <- example_IC_rate / (1 - example_IC_rate)
 We can test this rather easily by returning to the original raw data (eg. without the hindsight of our first logistic regression model). For each offence type/group we can calculate the (implied) odds for both males and female based on the count data. For instance, for Male indictable only violence against the person defendants the observed immediate custody rate was `r example_IC_rate  %>% round(3)`, with implied odds `r example_odds  %>% round(3)`.
 
 The plot below demonstrates that whilst the male and female odds are correlated across offence groups, assuming that the female odds are a constant times the male ones does not provide a very good fit (the dashed line depicts the implicit relationship assumed in our first logistic regression model, where female defendants were modelled to have odds equal to men, discounted by `r exp(beta_F) %>% round(3)`).
+
 ```{r, echo = FALSE}
 data_mf <- data %>% select(-count_IC, -count) %>% spread(sex,  rate_IC) %>% rename(male_IC = `01: Male`, female_IC = `02: Female`) %>%
   mutate(
@@ -233,6 +235,7 @@ model_F <- glm( formula = cbind(count_IC, count - count_IC) ~  offence_type + of
 
 model_M %>% select(term, estimate) %>% kable(caption = "Logistic regression coefficients for Male only data")
 ```
+
 ```{r, echo = FALSE}
 model_F %>% select(term, estimate) %>% kable(caption = "Logistic regression coefficients for Female only data")
 ```
