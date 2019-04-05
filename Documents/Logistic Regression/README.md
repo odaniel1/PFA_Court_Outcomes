@@ -1,6 +1,13 @@
 A Cautionary Tale: The Perils of Logistic Regression
 ================
 
+-   [Introduction](#introduction)
+-   [A Brief Overview of The Logistic Model](#a-brief-overview-of-the-logistic-model)
+-   [A First Model of the Impact of Gender on Immediate Custody Rates](#a-first-model-of-the-impact-of-gender-on-immediate-custody-rates)
+-   [Backpedalling](#backpedalling)
+-   [A Second Attempt](#a-second-attempt)
+-   [... The Exam Question!](#the-exam-question)
+
 Introduction
 ============
 
@@ -27,33 +34,38 @@ In other words, the aim of this section is to provide you with enough informatio
 
 Of course, if you already have some knowledge of logistic regression, then you can skip the below!
 
-The logistic model is aimed at answering the following question: given information (input variables) *x*<sub>1</sub>, *x*<sub>2</sub>, …, *x*<sub>*n*</sub> and an outcome (response variable) *y* which takes the values *y* = 0, or *y* = 1, what is the probability that *y* does in fact equal 1? The use of 0/1 can encode any response that can take one of two values, such as in our example 1 may denote an immediate custodial sentence, whilst 0 denotes any other outcome.
+The logistic model is aimed at answering the following question: given information (input variables) ![x\_1, x\_2, \\ldots, x\_n](https://latex.codecogs.com/png.latex?x_1%2C%20x_2%2C%20%5Cldots%2C%20x_n "x_1, x_2, \ldots, x_n") and an outcome (response variable) ![y](https://latex.codecogs.com/png.latex?y "y") which takes the values ![y = 0](https://latex.codecogs.com/png.latex?y%20%3D%200 "y = 0"), or ![y=1](https://latex.codecogs.com/png.latex?y%3D1 "y=1"), what is the probability that ![y](https://latex.codecogs.com/png.latex?y "y") does in fact equal ![1](https://latex.codecogs.com/png.latex?1 "1")? The use of ![0/1](https://latex.codecogs.com/png.latex?0%2F1 "0/1") can encode any response that can take one of two values, such as in our example ![1](https://latex.codecogs.com/png.latex?1 "1") may denote an immediate custodial sentence, whilst ![0](https://latex.codecogs.com/png.latex?0 "0") denotes any other outcome.
 
-In mathematical terms, the aim is to define some function *p* which takes as its inputs the observed values *x*<sub>1</sub>, …, *x*<sub>*n*</sub> and returns our guess of the probability that *y* = 1. To abbreviate formulae going forward we use the notation $\\underline x = (x\_1,\\ldots,x\_n)$; so our aim is to define a function
+In mathematical terms, the aim is to define some function ![p](https://latex.codecogs.com/png.latex?p "p") which takes as its inputs the observed values ![x\_1,\\ldots, x\_n](https://latex.codecogs.com/png.latex?x_1%2C%5Cldots%2C%20x_n "x_1,\ldots, x_n") and returns our guess of the probability that ![y = 1](https://latex.codecogs.com/png.latex?y%20%3D%201 "y = 1"). To abbreviate formulae going forward we use the notation ![\\underline x = (x\_1,\\ldots,x\_n)](https://latex.codecogs.com/png.latex?%5Cunderline%20x%20%3D%20%28x_1%2C%5Cldots%2Cx_n%29 "\underline x = (x_1,\ldots,x_n)"); so our aim is to define a function
 
-$$ p(\\underline x) = \\mathbf P\[y = 1 | \\underline x\]. $$
- There are many ways to define such a function *p*, and some will work better than others. At a first instance, scientists often turn to linear models as a first step due to their ease of a) interpretation, and b) implementation. That is we might suppose that
+![ p(\\underline x) = \\mathbf P\[y = 1 | \\underline x\]. ](https://latex.codecogs.com/png.latex?%20p%28%5Cunderline%20x%29%20%3D%20%5Cmathbf%20P%5By%20%3D%201%20%7C%20%5Cunderline%20x%5D.%20 " p(\underline x) = \mathbf P[y = 1 | \underline x]. ")
 
-$$ p(\\underline x) = \\beta\_0 + \\beta\_1 x\_1 + \\cdots + \\beta\_n x\_n,$$
- and then look to find the values *β*<sub>0</sub>, …, *β*<sub>*n*</sub> that best fit the data. In the context of guessing a probability, linear models often fail because they cannot naturally be constrained to satisfy the requirement of returning a value between 0 and 1, but we know that the true probability must have this constraint. A half-way solution to this problem is to assume not that *p* is linear, but that some transformation of it is.
+ There are many ways to define such a function ![p](https://latex.codecogs.com/png.latex?p "p"), and some will work better than others. At a first instance, scientists often turn to linear models as a first step due to their ease of a) interpretation, and b) implementation. That is we might suppose that
 
-Logistic regression does exactly this. It assumes that *p* has the property that
+![ p(\\underline x) = \\beta\_0 + \\beta\_1 x\_1 + \\cdots + \\beta\_n x\_n,](https://latex.codecogs.com/png.latex?%20p%28%5Cunderline%20x%29%20%3D%20%5Cbeta_0%20%2B%20%5Cbeta_1%20x_1%20%2B%20%5Ccdots%20%2B%20%5Cbeta_n%20x_n%2C " p(\underline x) = \beta_0 + \beta_1 x_1 + \cdots + \beta_n x_n,")
 
-$$ \\log \\frac{p(\\underline x)}{1 - p(\\underline x)} = \\beta\_0 + \\beta\_1 x\_1 + \\cdots + \\beta\_n x\_n, $$
+ and then look to find the values ![\\beta\_0,\\ldots, \\beta\_n](https://latex.codecogs.com/png.latex?%5Cbeta_0%2C%5Cldots%2C%20%5Cbeta_n "\beta_0,\ldots, \beta_n") that best fit the data. In the context of guessing a probability, linear models often fail because they cannot naturally be constrained to satisfy the requirement of returning a value between ![0](https://latex.codecogs.com/png.latex?0 "0") and ![1](https://latex.codecogs.com/png.latex?1 "1"), but we know that the true probability must have this constraint. A half-way solution to this problem is to assume not that ![p](https://latex.codecogs.com/png.latex?p "p") is linear, but that some transformation of it is.
+
+Logistic regression does exactly this. It assumes that ![p](https://latex.codecogs.com/png.latex?p "p") has the property that
+
+![ \\log \\frac{p(\\underline x)}{1 - p(\\underline x)} = \\beta\_0 + \\beta\_1 x\_1 + \\cdots + \\beta\_n x\_n, ](https://latex.codecogs.com/png.latex?%20%5Clog%20%5Cfrac%7Bp%28%5Cunderline%20x%29%7D%7B1%20-%20p%28%5Cunderline%20x%29%7D%20%3D%20%5Cbeta_0%20%2B%20%5Cbeta_1%20x_1%20%2B%20%5Ccdots%20%2B%20%5Cbeta_n%20x_n%2C%20 " \log \frac{p(\underline x)}{1 - p(\underline x)} = \beta_0 + \beta_1 x_1 + \cdots + \beta_n x_n, ")
+
  which on rearranging is equivalent to
 
-$$p(\\underline x) = \\bigg( 1 + \\exp(\\beta\_0 + \\beta\_1x\_1 + \\cdots \\beta\_n x\_n) \\bigg)^{-1}.$$
- We have obtained a formula for *p* that satisfies the requirement to be between 0 and 1, is computationally efficient to solve (not something we will discuss, but of hisoric importance in the time before greater computing power and still useful for fitting models quickly), and which retains some level of interpretability.
+![p(\\underline x) = \\bigg( 1 + \\exp(\\beta\_0 + \\beta\_1x\_1 + \\cdots \\beta\_n x\_n) \\bigg)^{-1}.](https://latex.codecogs.com/png.latex?p%28%5Cunderline%20x%29%20%3D%20%5Cbigg%28%201%20%2B%20%5Cexp%28%5Cbeta_0%20%2B%20%5Cbeta_1x_1%20%2B%20%5Ccdots%20%5Cbeta_n%20x_n%29%20%5Cbigg%29%5E%7B-1%7D. "p(\underline x) = \bigg( 1 + \exp(\beta_0 + \beta_1x_1 + \cdots \beta_n x_n) \bigg)^{-1}.")
 
-The interpretation comes from looking not at the probability $p(\\underline x)$ itself but at the odds: which is the ratio $p(\\underline x) /(1-p(\\underline x))$, which we encountered above. The odds describe how likely it is that *y* = 1; as an example suppose that $p(\\underline x) = 3/4$, then the odds are $p(\\underline x) /(1-p(\\underline x)) = 3$, which in the gambling world is often expressed as 3-to-1, and represents the fact that for every 3 observations of *y* = 1, you should expect 1 observation of *y* = 0.
+ We have obtained a formula for ![p](https://latex.codecogs.com/png.latex?p "p") that satisfies the requirement to be between ![0](https://latex.codecogs.com/png.latex?0 "0") and ![1](https://latex.codecogs.com/png.latex?1 "1"), is computationally efficient to solve (not something we will discuss, but of hisoric importance in the time before greater computing power and still useful for fitting models quickly), and which retains some level of interpretability.
+
+The interpretation comes from looking not at the probability ![p(\\underline x)](https://latex.codecogs.com/png.latex?p%28%5Cunderline%20x%29 "p(\underline x)") itself but at the odds: which is the ratio ![p(\\underline x) /(1-p(\\underline x))](https://latex.codecogs.com/png.latex?p%28%5Cunderline%20x%29%20%2F%281-p%28%5Cunderline%20x%29%29 "p(\underline x) /(1-p(\underline x))"), which we encountered above. The odds describe how likely it is that ![y = 1](https://latex.codecogs.com/png.latex?y%20%3D%201 "y = 1"); as an example suppose that ![p(\\underline x) = 3/4](https://latex.codecogs.com/png.latex?p%28%5Cunderline%20x%29%20%3D%203%2F4 "p(\underline x) = 3/4"), then the odds are ![p(\\underline x) /(1-p(\\underline x)) = 3](https://latex.codecogs.com/png.latex?p%28%5Cunderline%20x%29%20%2F%281-p%28%5Cunderline%20x%29%29%20%3D%203 "p(\underline x) /(1-p(\underline x)) = 3"), which in the gambling world is often expressed as ![3](https://latex.codecogs.com/png.latex?3 "3")-to-![1](https://latex.codecogs.com/png.latex?1 "1"), and represents the fact that for every ![3](https://latex.codecogs.com/png.latex?3 "3") observations of ![y = 1](https://latex.codecogs.com/png.latex?y%20%3D%201 "y = 1"), you should expect ![1](https://latex.codecogs.com/png.latex?1 "1") observation of ![y=0](https://latex.codecogs.com/png.latex?y%3D0 "y=0").
 
 Under the logistic model, the odds can be written as
 
-$$ \\frac{ p(\\underline x)}{1- p(\\underline x)} = e^{\\beta\_0} \\cdot e^{\\beta\_1 x\_1}  \\cdots  e^{\\beta\_n x\_n}.$$
+![ \\frac{ p(\\underline x)}{1- p(\\underline x)} = e^{\\beta\_0} \\cdot e^{\\beta\_1 x\_1}  \\cdots  e^{\\beta\_n x\_n}.](https://latex.codecogs.com/png.latex?%20%5Cfrac%7B%20p%28%5Cunderline%20x%29%7D%7B1-%20p%28%5Cunderline%20x%29%7D%20%3D%20e%5E%7B%5Cbeta_0%7D%20%5Ccdot%20e%5E%7B%5Cbeta_1%20x_1%7D%20%20%5Ccdots%20%20e%5E%7B%5Cbeta_n%20x_n%7D. " \frac{ p(\underline x)}{1- p(\underline x)} = e^{\beta_0} \cdot e^{\beta_1 x_1}  \cdots  e^{\beta_n x_n}.")
 
-To understand why this might be an appropriate/interpretable model we consider our application and suppose that variable *x*<sub>1</sub> encodes whether a defendant is male or female: for sake of example *x*<sub>1</sub> = 1 if they are female, and *x*<sub>1</sub> = 0 if they are male. Suppose we had data on two defendants which is identical, except for their gender, so that $ x = (1, x\_2, , x\_n)$ is the data for the female defendant, and $\\underline y = (0,x\_2, \\ldots, x\_n)$ is the data for the male defendant. Then the logistic model implies that the odds that the female is given an immediate custodial sentence are equal to those of the male, but multiplied by some constant factor
+To understand why this might be an appropriate/interpretable model we consider our application and suppose that variable ![x\_1](https://latex.codecogs.com/png.latex?x_1 "x_1") encodes whether a defendant is male or female: for sake of example ![x\_1 = 1](https://latex.codecogs.com/png.latex?x_1%20%3D%201 "x_1 = 1") if they are female, and ![x\_1 = 0](https://latex.codecogs.com/png.latex?x_1%20%3D%200 "x_1 = 0") if they are male. Suppose we had data on two defendants which is identical, except for their gender, so that $ x = (1, x\_2, , x\_n)$ is the data for the female defendant, and ![\\underline y = (0,x\_2, \\ldots, x\_n)](https://latex.codecogs.com/png.latex?%5Cunderline%20y%20%3D%20%280%2Cx_2%2C%20%5Cldots%2C%20x_n%29 "\underline y = (0,x_2, \ldots, x_n)") is the data for the male defendant. Then the logistic model implies that the odds that the female is given an immediate custodial sentence are equal to those of the male, but multiplied by some constant factor
 
-$$\\frac{ p(\\underline x)}{1- p(\\underline x)}  = e^{\\beta\_1} \\times \\frac{ p(\\underline y)}{1- p(\\underline y)}.$$
+![\\frac{ p(\\underline x)}{1- p(\\underline x)}  = e^{\\beta\_1} \\times \\frac{ p(\\underline y)}{1- p(\\underline y)}.](https://latex.codecogs.com/png.latex?%5Cfrac%7B%20p%28%5Cunderline%20x%29%7D%7B1-%20p%28%5Cunderline%20x%29%7D%20%20%3D%20e%5E%7B%5Cbeta_1%7D%20%5Ctimes%20%5Cfrac%7B%20p%28%5Cunderline%20y%29%7D%7B1-%20p%28%5Cunderline%20y%29%7D. "\frac{ p(\underline x)}{1- p(\underline x)}  = e^{\beta_1} \times \frac{ p(\underline y)}{1- p(\underline y)}.")
+
  We now put this to practice on actual data of immediate custody rates in the Crown court.
 
 A First Model of the Impact of Gender on Immediate Custody Rates
@@ -125,15 +137,19 @@ Rather, our aim is to demonstrate the issue in quickly fitting these models naiv
 | offence\_group09: Miscellaneous crimes against society |  -0.5314832|
 | offence\_group10: Fraud Offences                       |  -0.4378809|
 
-The intercept term corresponds to the scenario of a defendant who is male, who has been convicted in an indictable only violence against the person trial. The coefficient *β*<sub>0</sub> = 1.585 implies that the odds of such a defendant receiving an immediate custodial sentence are equal to
-exp(*β*<sub>0</sub>)=4.877,
- which in turn implies that the probability is 0.83.
+The intercept term corresponds to the scenario of a defendant who is male, who has been convicted in an indictable only violence against the person trial. The coefficient ![\\beta\_0 = 1.585](https://latex.codecogs.com/png.latex?%5Cbeta_0%20%3D%201.585 "\beta_0 = 1.585") implies that the odds of such a defendant receiving an immediate custodial sentence are equal to
 
-As discussed in the introduction, if we wanted instead to know the odds for a female offender with the same offence type / group, then this is easily obtained by multiplying the odds above by the appropriate coefficient for female defendants. Denoting *β*<sub>*F*</sub> = −1.064 for the coefficient for indicating that a defendant is female, then the odds become:
-exp(*β*<sub>*F*</sub>)exp(*β*<sub>0</sub>)=1.6831115
- and subsequently the probability is 0.627.
+![\\exp(\\beta\_0) = 4.877,](https://latex.codecogs.com/png.latex?%5Cexp%28%5Cbeta_0%29%20%3D%204.877%2C "\exp(\beta_0) = 4.877,")
 
-So the model says that no matter what the odds are for males, the equivalent odds for a female defendant are always exp(*β*<sub>*F*</sub>)=0.345 times this.
+ which in turn implies that the probability is ![0.83](https://latex.codecogs.com/png.latex?0.83 "0.83").
+
+As discussed in the introduction, if we wanted instead to know the odds for a female offender with the same offence type / group, then this is easily obtained by multiplying the odds above by the appropriate coefficient for female defendants. Denoting ![\\beta\_F = -1.064](https://latex.codecogs.com/png.latex?%5Cbeta_F%20%3D%20-1.064 "\beta_F = -1.064") for the coefficient for indicating that a defendant is female, then the odds become:
+
+![ \\exp(\\beta\_F) \\exp(\\beta\_0) = 1.6831115](https://latex.codecogs.com/png.latex?%20%5Cexp%28%5Cbeta_F%29%20%5Cexp%28%5Cbeta_0%29%20%3D%201.6831115 " \exp(\beta_F) \exp(\beta_0) = 1.6831115")
+
+ and subsequently the probability is ![0.627](https://latex.codecogs.com/png.latex?0.627 "0.627").
+
+So the model says that no matter what the odds are for males, the equivalent odds for a female defendant are always ![\\exp( \\beta\_F) = 0.345](https://latex.codecogs.com/png.latex?%5Cexp%28%20%5Cbeta_F%29%20%3D%200.345 "\exp( \beta_F) = 0.345") times this.
 
 Testing model fit
 -----------------
@@ -155,7 +171,7 @@ Backpedalling
 
 Reflecting on the conclusions of the section **Fitting a first model**, there we stated that under the logistic regressiono model above:
 
-> "no matter what the odds are for males, the equivalent odds for a female defendant are always exp(*β*<sub>*F*</sub>)=0.345 times this."
+> "no matter what the odds are for males, the equivalent odds for a female defendant are always ![\\exp( \\beta\_F) = 0.345](https://latex.codecogs.com/png.latex?%5Cexp%28%20%5Cbeta_F%29%20%3D%200.345 "\exp( \beta_F) = 0.345") times this."
 
 This encapsulates two assumptions that are at the heart of logistic regression, which in our context can be stated as:
 

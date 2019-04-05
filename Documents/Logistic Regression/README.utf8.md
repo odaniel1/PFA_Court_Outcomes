@@ -85,12 +85,17 @@ The aim of this analysis is to understand how variables correlate to immediate c
 
 The data we use is illustrated below, where we display the first 8 rows.
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-library(tidyverse)
-library(knitr)
-data <- read_csv("../../Data/adult_gender_IC_data.csv")
-data %>% head(8) %>%  kable
-```
+
+sex          offence_type             offence_group                      count_IC   count     rate_IC
+-----------  -----------------------  --------------------------------  ---------  ------  ----------
+01: Male     01: Indictable only      01: Violence against the person        1675    1889   0.8867125
+01: Male     02: Triable Either Way   01: Violence against the person        3818    6399   0.5966557
+02: Female   01: Indictable only      01: Violence against the person         129     158   0.8164557
+02: Female   02: Triable Either Way   01: Violence against the person         254     771   0.3294423
+01: Male     01: Indictable only      02: Sexual offences                    1618    1835   0.8817439
+01: Male     02: Triable Either Way   02: Sexual offences                    1668    2459   0.6783245
+02: Female   01: Indictable only      02: Sexual offences                      21      27   0.7777778
+02: Female   02: Triable Either Way   02: Sexual offences                      26      42   0.6190476
 
 The `count` column denotes the total number of defendants in the data, whilst `count_IC` denotes those sentenced to immediate custody. Finally `rate_IC` denotes the immediate custody rate, which is the ratio of `count_IC` to `count.
 
@@ -98,79 +103,43 @@ The `count` column denotes the total number of defendants in the data, whilst `c
 
 As a first piece of exploratory analysis, the histograms below show how immediate custody rates vary, and in particular highlights that gender does appear to have an impact on this.
 
-```{r, echo = FALSE, warning = FALSE}
-data %>% 
-  mutate(rate_IC = count_IC / count) %>%
-  ggplot(aes(x = rate_IC, fill = sex)) + geom_histogram(bins= 10) + facet_grid(rows = vars(sex)) +
-    scale_fill_manual(values = c("01: Male" = "#3B9AB2", "02: Female" = "#F21A00"))
-```
+![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
 ## Fitting a first model
 The first model we fit we will do so naively, using logistic regression as a blackbox. Note that our intention here will not be to go into detail about the mechanics of fitting a logistic regression model in R, or diagnostics about model fit: both of which are well covered for instance in Chapter 2 of [An Introduction to Statistical Learning](https://www-bcf.usc.edu/~gareth/ISL/ISLR%20Seventh%20Printing.pdf)
 
 Rather, our aim is to demonstrate the issue in quickly fitting these models naively. So to this end, we simply observe that by performing a logistic regression out-of-the-box on this data, we obtain the following estimated coefficients (for simplicity we are deliberately not showing the wider model fit diagnostics such as standard errors or p-values):
 
-```{r, echo = FALSE}
-library(broom)
 
-model_1 <- glm( formula = cbind(count_IC, count - count_IC) ~ sex + offence_type + offence_group, family = binomial(logit), data = data)
+term                                                       estimate
+------------------------------------------------------  -----------
+(Intercept)                                               1.5846052
+sex02: Female                                            -1.0639611
+offence_type02: Triable Either Way                       -1.1162703
+offence_group02: Sexual offences                          0.3310899
+offence_group03: Robbery                                  0.8998005
+offence_group04: Theft Offences                           0.7452852
+offence_group05: Criminal damage and arson               -0.2475703
+offence_group06: Drug offences                            0.1828488
+offence_group07: Possession of weapons                   -0.1804481
+offence_group08: Public order offences                   -0.5910393
+offence_group09: Miscellaneous crimes against society    -0.5314832
+offence_group10: Fraud Offences                          -0.4378809
 
-model_1 <- model_1 %>% tidy
+The intercept term corresponds to the scenario of a defendant who is male, who has been convicted in an indictable only violence against the person trial. The coefficient $\beta_0 = 1.585$ implies that the odds of such a defendant receiving an immediate custodial sentence are equal to 
+$$\exp(\beta_0) = 4.877,$$ 
+which in turn implies that the probability is $0.83$.
 
-kable(model_1 %>% select(term, estimate))
+As discussed in the introduction, if we wanted instead to know the odds for a female offender with the same offence type / group, then this is easily obtained by multiplying the odds above by the appropriate coefficient for female defendants. Denoting $\beta_F = -1.064$ for the coefficient for indicating that a defendant is female, then the odds become:
+$$ \exp(\beta_F) \exp(\beta_0) = 1.6831115$$
+and subsequently the probability is $0.627$.
 
-beta0 <-  model_1[1,"estimate"] %>% unlist()
-beta_F <- model_1[2,"estimate"] %>% unlist()
-```
-
-The intercept term corresponds to the scenario of a defendant who is male, who has been convicted in an indictable only violence against the person trial. The coefficient $\beta_0 = `r beta0 %>% round(3)`$ implies that the odds of such a defendant receiving an immediate custodial sentence are equal to 
-$$\exp(\beta_0) = `r exp(beta0) %>% round(3)`,$$ 
-which in turn implies that the probability is $`r (1 + exp(-beta0))^(-1) %>% round(3)`$.
-
-As discussed in the introduction, if we wanted instead to know the odds for a female offender with the same offence type / group, then this is easily obtained by multiplying the odds above by the appropriate coefficient for female defendants. Denoting $\beta_F = `r beta_F %>% round(3)`$ for the coefficient for indicating that a defendant is female, then the odds become:
-$$ \exp(\beta_F) \exp(\beta_0) = `r exp(beta_F) * exp(beta0)`$$
-and subsequently the probability is $`r (1 + exp(-beta0 - beta_F))^(-1) %>% round(3)`$.
-
-So the model says that no matter what the odds are for males, the equivalent odds for a female defendant are always $\exp( \beta_F) = `r exp(beta_F) %>% round(3)`$ times this.
+So the model says that no matter what the odds are for males, the equivalent odds for a female defendant are always $\exp( \beta_F) = 0.345$ times this.
 
 ## Testing model fit
 We can conduct an initial analysis of model fit without having to know anything about test diagnoistics for statistical models. We do this by seeing how well the modelled probabilities of receiving an immediate custodial sentence model match with the observed frequencies in the data.
 
-```{r, echo = FALSE}
-data_model_1 <- data %>% mutate(
-  intercept = "(Intercept)",
-  sex_term = paste0("sex", sex),
-  offence_type_term = paste0("offence_type", offence_type),
-  offence_group_term = paste0("offence_group", offence_group)
-)
-
-data_model_1 <- model_1 %>% select(term, intercept_coef = estimate) %>%
-  left_join(data_model_1, ., by = c("intercept" = "term"))
-
-data_model_1 <- model_1 %>% select(term, sex_coef = estimate) %>%
-  left_join(data_model_1, ., by = c("sex_term" = "term"))
-
-data_model_1 <- model_1 %>% select(term, offence_type_coef = estimate) %>%
-  left_join(data_model_1, ., by = c("offence_type_term" = "term"))
-
-data_model_1 <- model_1 %>% select(term, offence_group_coef = estimate) %>%
-  left_join(data_model_1, ., by = c("offence_group_term" = "term"))
-
-data_model_1 <- data_model_1 %>%
-  rowwise %>%
-  mutate(
-    coef = sum(intercept_coef, sex_coef, offence_type_coef, offence_group_coef, na.rm = TRUE),
-    odds = exp(coef),
-    prob = odds/(1+odds)
-  )
-
-
-data_model_1 %>% ggplot(aes(rate_IC, prob, color = sex)) + geom_point() +
-  geom_abline(intercept = 0, slope = 1, color = "darkgrey") +
-  xlab("Observed IC Rate") + ylab("Modelled IC Probability") +
-  scale_color_manual(values = c("01: Male" = "#3B9AB2", "02: Female" = "#F21A00")) +
-  scale_x_continuous(limits = c(0,1)) + scale_y_continuous(limits = c(0,1))
-```
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 We see that whilst the model does generally fit the overall data quite well, there is an obvious pattern that the model does not fit the data to female defendants as well as it does to males.
 
@@ -183,7 +152,7 @@ However, our interest in this note is to raise awareness of a much more signific
 # Backpedalling
 Reflecting on the conclusions of the section **Fitting a first model**, there we stated that under the logistic regressiono model above:
 
-> "no matter what the odds are for males, the equivalent odds for a female defendant are always $\exp( \beta_F) = `r exp(beta_F) %>% round(3)`$ times this."
+> "no matter what the odds are for males, the equivalent odds for a female defendant are always $\exp( \beta_F) = 0.345$ times this."
 
 This encapsulates two assumptions that are at the heart of logistic regression, which in our context can be stated as:
 
@@ -196,30 +165,13 @@ The first assumption is not so much about the appropriateness of the modelling t
 
 Without looking at the data I would not (personally!) choose to make this assumption without first actively testing it. For instance, do we know that within these offence groups woman and men are commiting the same actual crimes (eg. if a woman does commit a sex offence, beyond the headline title, are these really likely to be similar offences, with similar punishments?).
 
-```{r, echo = FALSE}
-example_IC_rate <- data %>% 
-  filter(sex == "01: Male", offence_type == "01: Indictable only", offence_group == "01: Violence against the person") %>%
-  select(rate_IC) %>% unlist
 
-example_odds <- example_IC_rate / (1 - example_IC_rate)
-```
 
-We can test this rather easily by returning to the original raw data (eg. without the hindsight of our first logistic regression model). For each offence type/group we can calculate the (implied) odds for both males and female based on the count data. For instance, for Male indictable only violence against the person defendants the observed immediate custody rate was `r example_IC_rate  %>% round(3)`, with implied odds `r example_odds  %>% round(3)`.
+We can test this rather easily by returning to the original raw data (eg. without the hindsight of our first logistic regression model). For each offence type/group we can calculate the (implied) odds for both males and female based on the count data. For instance, for Male indictable only violence against the person defendants the observed immediate custody rate was 0.887, with implied odds 7.827.
 
-The plot below demonstrates that whilst the male and female odds are correlated across offence groups, assuming that the female odds are a constant times the male ones does not provide a very good fit (the dashed line depicts the implicit relationship assumed in our first logistic regression model, where female defendants were modelled to have odds equal to men, discounted by `r exp(beta_F) %>% round(3)`).
+The plot below demonstrates that whilst the male and female odds are correlated across offence groups, assuming that the female odds are a constant times the male ones does not provide a very good fit (the dashed line depicts the implicit relationship assumed in our first logistic regression model, where female defendants were modelled to have odds equal to men, discounted by 0.345).
 
-```{r, echo = FALSE}
-data_mf <- data %>% select(-count_IC, -count) %>% spread(sex,  rate_IC) %>% rename(male_IC = `01: Male`, female_IC = `02: Female`) %>%
-  mutate(
-    male_odds = male_IC / (1 - male_IC),
-    female_odds = female_IC / (1- female_IC)
-  )
-
-data_mf %>% ggplot(aes(male_odds, female_odds)) + geom_point() +
-  geom_abline(intercept = 0, slope = exp(beta_F), linetype = "dashed") +
-  xlab("(Implied) Male Odds") + ylab("(Implied) Female Odds") +
-  scale_x_continuous(limits = c(0, 12), breaks = seq(0,12,by=2)) + scale_y_continuous(limits = c(0, 6))
-```
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 # A Second Attempt
 Having decided that it is not appropriate to assume that gender has the same multiplicative affect on all offence groups/types, how can we now fit a logistic regression model that takes this into account?
@@ -227,59 +179,45 @@ Having decided that it is not appropriate to assume that gender has the same mul
 The answer is simple - fit two models: one for female defendants and a second for male. In practice there is a much more elegant way to do this than to literally fit two models, but as reiterated before, our aim in this note is to highlight the issue of the implicit assumptions we've made, not to address implementation methods.
 
 Doing this, we obtain model fits for both a male and female logistic regression model.
-```{r, echo = FALSE}
-model_M <- glm( formula = cbind(count_IC, count - count_IC) ~  offence_type + offence_group,
-                family = binomial(logit), data = data %>% filter(sex == "01: Male")) %>% tidy
 
-model_F <- glm( formula = cbind(count_IC, count - count_IC) ~  offence_type + offence_group,
-                family = binomial(logit), data = data %>% filter(sex == "02: Female")) %>% tidy
+Table: Logistic regression coefficients for Male only data
 
-model_M %>% select(term, estimate) %>% kable(caption = "Logistic regression coefficients for Male only data")
-```
+term                                                       estimate
+------------------------------------------------------  -----------
+(Intercept)                                               1.5929198
+offence_type02: Triable Either Way                       -1.1325817
+offence_group02: Sexual offences                          0.3211042
+offence_group03: Robbery                                  0.8286452
+offence_group04: Theft Offences                           0.7516752
+offence_group05: Criminal damage and arson               -0.2648820
+offence_group06: Drug offences                            0.2101685
+offence_group07: Possession of weapons                   -0.1613835
+offence_group08: Public order offences                   -0.5792958
+offence_group09: Miscellaneous crimes against society    -0.5240392
+offence_group10: Fraud Offences                          -0.4618284
 
-```{r, echo = FALSE}
-model_F %>% select(term, estimate) %>% kable(caption = "Logistic regression coefficients for Female only data")
-```
+
+Table: Logistic regression coefficients for Female only data
+
+term                                                       estimate
+------------------------------------------------------  -----------
+(Intercept)                                               0.4757287
+offence_type02: Triable Either Way                       -1.0063585
+offence_group02: Sexual offences                          0.9424191
+offence_group03: Robbery                                  1.3036083
+offence_group04: Theft Offences                           0.6933624
+offence_group05: Criminal damage and arson               -0.1492410
+offence_group06: Drug offences                           -0.0728072
+offence_group07: Possession of weapons                   -0.4445153
+offence_group08: Public order offences                   -0.7532894
+offence_group09: Miscellaneous crimes against society    -0.5594414
+offence_group10: Fraud Offences                          -0.3910949
 
 As before we will not perform a full diagnostic test of model fit, but rather just see how well this new model fits to the original data from which it was derived. And most importantly whether it fits the data better.
 
 The plot below shows the observed immediate custody rates against the probabilities prediced from the new model (solid circles) as well as the original result (hollow circles).
 
-```{r, echo = FALSE}
-
-model_MF <- bind_rows( model_M %>% mutate(sex = "01: Male"), model_F %>% mutate(sex = "02: Female") )
-
-data_model_MF <- data %>% mutate(
-  intercept = "(Intercept)",
-  offence_type_term = paste0("offence_type", offence_type),
-  offence_group_term = paste0("offence_group", offence_group)
-)
-
-data_model_MF <- model_MF %>% select(term, sex,intercept_coef = estimate) %>%
-  left_join(data_model_MF, ., by = c("intercept" = "term", "sex" = "sex"))
-
-data_model_MF <- model_MF %>% select(term, sex, offence_type_coef = estimate) %>%
-  left_join(data_model_MF, ., by = c("offence_type_term" = "term", "sex" = "sex"))
-
-data_model_MF <- model_MF %>% select(term, sex, offence_group_coef = estimate) %>%
-  left_join(data_model_MF, ., by = c("offence_group_term" = "term", "sex" = "sex"))
-
-data_model_MF <- data_model_MF %>%
-  rowwise %>%
-  mutate(
-    coef = sum(intercept_coef, offence_type_coef, offence_group_coef, na.rm = TRUE),
-    odds = exp(coef),
-    prob = odds/(1+odds)
-  )
-
-
-data_model_MF %>% ggplot(aes(rate_IC, prob, color = sex)) + geom_point() +
-  geom_point(data = data_model_1,aes(rate_IC, prob, color = sex), shape = 1 ) +
-  geom_abline(intercept = 0, slope = 1, color = "darkgrey") +
-  xlab("Observed IC Rate") + ylab("Modelled IC Probability") +
-  scale_color_manual(values = c("01: Male" = "#3B9AB2", "02: Female" = "#F21A00")) +
-  scale_x_continuous(limits = c(0,1)) + scale_y_continuous(limits = c(0,1))
-```
+![](README_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 Somewhat unexpecteldy the model doesn't appear to have changed all that much; as before the male data generally fits well to the observed data (largely lies on the diagonal line), and this data has barely changed from the original model (hard to perceive hollow circles). On the other hand the data for females has changed more significantly, but in some cases the fit appears to have worsened not improved.
 
