@@ -7,6 +7,7 @@ A Cautionary Tale: The Perils of Logistic Regression
 -   [Backpedalling](#backpedalling)
 -   [A Second Attempt](#a-second-attempt)
 -   [... The Exam Question!](#the-exam-question)
+-   [Final Thoughts](#final-thoughts)
 
 Introduction
 ============
@@ -239,3 +240,12 @@ Somewhat unexpecteldy the model doesn't appear to have changed all that much; as
 ======================
 
 The lack of fit can be explained entirely using information in this note; can you spot the issue?!
+
+Final Thoughts
+==============
+
+Whether or not you thought through the exam question above (and moreover, if you did and subsequently fitted an appropriate model to resolve the issue), the main purpose of the note has been to raise awareness of the implicit assumptions we make when fitting a logistic regression model.
+
+This is equally true for any type of model fitting, including linear regression models. The difference with linear regression is, perhaps, that the greater simplicity and more common usage of these techniques mean that analysts are less likely to fall into the traps associated with the assumptions. On the other hand, logistic regression is frequently used as an off-the-shelf technique whenever the problem is to model a binary outcome, with less scrouples for the technicality behind the scene.
+
+As stated in the introduction: this use of black-boxes is often fine in the context of predictive modelling (though the best predictive modellers will of course not use the techniques as black boxes), but for inference this is unacceptable due to the risk of drawing out false or misleading associations.
