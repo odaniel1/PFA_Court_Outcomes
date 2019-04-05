@@ -55,7 +55,7 @@ Under the logistic model, the odds can be written as
 
 $$ \frac{ p(\underline x)}{1- p(\underline x)} = e^{\beta_0} \cdot e^{\beta_1 x_1}  \cdots  e^{\beta_n x_n}.$$
 
-To understand why this might be an appropriate/interpretable model we consider our application and suppose that variable $x_1$ encodes whether a defendant is male or female: for sake of example $x_1 = 1$ if they are female, and $x_1 = 0$ if they are male. Suppose we had data on two defendants which is identical, except for their gender, so that $ \underline x = (1, x_2, \ldots, x_n)$ is the data for the female defendant, and $\underline y = (0,x_2, \ldots, x_n)$ is the data for the male defendant. Then the logistic model implies that the odds that the female is given an immediate custodial sentence are equal to those of the male, but multiplied by some constant factor
+To understand why this might be an appropriate/interpretable model we consider our application and suppose that variable $x_1$ encodes whether a defendant is male or female: for sake of example $x_1 = 1$ if they are female, and $x_1 = 0$ if they are male. Suppose we had data on two defendants which is identical, except for their gender, so that $\underline x = (1, x_2, \ldots, x_n)$ is the data for the female defendant, and $\underline y = (0,x_2, \ldots, x_n)$ is the data for the male defendant. Then the logistic model implies that the odds that the female is given an immediate custodial sentence are equal to those of the male, but multiplied by some constant factor
 
 $$\frac{ p(\underline x)}{1- p(\underline x)}  = e^{\beta_1} \times \frac{ p(\underline y)}{1- p(\underline y)}.$$
 We now put this to practice on actual data of immediate custody rates in the Crown court.
