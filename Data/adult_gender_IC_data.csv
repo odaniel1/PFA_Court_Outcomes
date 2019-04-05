@@ -1,0 +1,39 @@
+sex,offence_type,offence_group,count_IC,count,rate_IC
+01: Male,01: Indictable only,01: Violence against the person,1675,1889,0.8867125463208047
+01: Male,02: Triable Either Way,01: Violence against the person,3818,6399,0.5966557274574152
+02: Female,01: Indictable only,01: Violence against the person,129,158,0.8164556962025317
+02: Female,02: Triable Either Way,01: Violence against the person,254,771,0.32944228274967574
+01: Male,01: Indictable only,02: Sexual offences,1618,1835,0.8817438692098093
+01: Male,02: Triable Either Way,02: Sexual offences,1668,2459,0.678324522163481
+02: Female,01: Indictable only,02: Sexual offences,21,27,0.7777777777777778
+02: Female,02: Triable Either Way,02: Sexual offences,26,42,0.6190476190476191
+01: Male,01: Indictable only,03: Robbery,1881,2048,0.91845703125
+02: Female,01: Indictable only,03: Robbery,160,187,0.8556149732620321
+01: Male,01: Indictable only,04: Theft Offences,406,473,0.8583509513742071
+01: Male,02: Triable Either Way,04: Theft Offences,4480,5780,0.7750865051903114
+02: Female,01: Indictable only,04: Theft Offences,33,43,0.7674418604651163
+02: Female,02: Triable Either Way,04: Theft Offences,302,559,0.5402504472271914
+01: Male,01: Indictable only,05: Criminal damage and arson,158,203,0.7783251231527094
+01: Male,02: Triable Either Way,05: Criminal damage and arson,183,329,0.5562310030395137
+02: Female,01: Indictable only,05: Criminal damage and arson,29,56,0.5178571428571429
+02: Female,02: Triable Either Way,05: Criminal damage and arson,19,46,0.41304347826086957
+01: Male,01: Indictable only,06: Drug offences,26,54,0.48148148148148145
+01: Male,02: Triable Either Way,06: Drug offences,5046,7596,0.6642969984202212
+02: Female,01: Indictable only,06: Drug offences,0,7,0
+02: Female,02: Triable Either Way,06: Drug offences,263,732,0.3592896174863388
+01: Male,01: Indictable only,07: Possession of weapons,340,429,0.7925407925407926
+01: Male,02: Triable Either Way,07: Possession of weapons,1022,1769,0.5777275296777841
+02: Female,01: Indictable only,07: Possession of weapons,7,16,0.4375
+02: Female,02: Triable Either Way,07: Possession of weapons,37,131,0.2824427480916031
+01: Male,01: Indictable only,08: Public order offences,114,158,0.7215189873417721
+01: Male,02: Triable Either Way,08: Public order offences,1117,2371,0.4711092366090257
+02: Female,01: Indictable only,08: Public order offences,1,1,1
+02: Female,02: Triable Either Way,08: Public order offences,35,164,0.21341463414634146
+01: Male,01: Indictable only,09: Miscellaneous crimes against society,1047,1462,0.7161422708618331
+01: Male,02: Triable Either Way,09: Miscellaneous crimes against society,3030,6174,0.49076773566569487
+02: Female,01: Indictable only,09: Miscellaneous crimes against society,200,445,0.449438202247191
+02: Female,02: Triable Either Way,09: Miscellaneous crimes against society,179,659,0.2716236722306525
+01: Male,01: Indictable only,10: Fraud Offences,113,184,0.6141304347826086
+01: Male,02: Triable Either Way,10: Fraud Offences,846,1641,0.5155393053016454
+02: Female,01: Indictable only,10: Fraud Offences,16,49,0.32653061224489793
+02: Female,02: Triable Either Way,10: Fraud Offences,184,613,0.300163132137031
